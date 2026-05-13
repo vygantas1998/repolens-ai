@@ -1,0 +1,20 @@
+export const sampleTree = `package.json
+README.md
+src/main.tsx
+src/App.tsx
+src/styles/global.css
+src/components/Header.tsx
+src/components/Sidebar.tsx
+src/components/RepositoryMap.tsx
+src/components/AnalysisPanel.tsx
+src/pages/HomePage.tsx
+src/pages/AnalysisPage.tsx
+src/api/client.ts
+src/api/repositories.ts
+src/types/analysis.ts
+server/index.ts
+server/routes/analyze.ts
+server/routes/questions.ts
+server/services/aiClient.ts
+server/services/treeAnalyzer.ts
+server/types/analysis.ts`;

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RepoLens AI - Architecture Node Options</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050712;
+        --panel: #0f172a;
+        --panel-soft: #111827;
+        --line: rgba(148, 163, 184, 0.22);
+        --line-strong: rgba(148, 163, 184, 0.34);
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --teal: #0f766e;
+        --teal-soft: rgba(15, 118, 110, 0.18);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background: linear-gradient(135deg, #050712, #0b1020 48%, #050712);
+      }
+
+      main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 50px; }
+      header { margin-bottom: 24px; }
+      .eyebrow { margin: 0 0 10px; color: #5eead4; font-size: 12px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+      h1 { margin: 0; max-width: 760px; font-size: clamp(38px, 5vw, 64px); line-height: 0.98; letter-spacing: -0.07em; }
+      header p:not(.eyebrow) { max-width: 680px; color: var(--muted); line-height: 1.65; }
+      .grid { display: grid; gap: 22px; }
+      .proposal { border: 1px solid var(--line); border-radius: 28px; background: rgba(15, 23, 42, 0.78); overflow: hidden; }
+      .proposal-head { display: flex; justify-content: space-between; gap: 18px; padding: 20px 22px; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, 0.025); }
+      .proposal-head h2 { margin: 0; font-size: 20px; letter-spacing: -0.03em; }
+      .proposal-head p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+      .label { color: #99f6e4; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; }
+      .canvas { min-height: 410px; padding: 28px; background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px); background-size: 24px 24px; }
+      .nodes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+      .nodes.center { grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; padding-top: 44px; }
+      .nodes.rows { grid-template-columns: 1fr; max-width: 780px; margin: 0 auto; }
+
+      .a-node { min-height: 136px; border: 1px solid var(--line-strong); border-radius: 22px; padding: 16px; background: rgba(15, 23, 42, 0.92); }
+      .a-node.selected { border-color: rgba(45, 212, 191, 0.72); background: linear-gradient(180deg, rgba(15, 118, 110, 0.18), rgba(15, 23, 42, 0.94)); }
+      .a-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 14px; }
+      .a-kind { color: #5eead4; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; }
+      .a-count { color: var(--muted); font-size: 12px; }
+      .a-node b { display: block; font-size: 18px; letter-spacing: -0.03em; }
+      .a-node p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+      .b-node { position: relative; min-height: 150px; border: 1px solid rgba(148, 163, 184, 0.24); border-radius: 999px; padding: 18px 14px; background: #0b1220; text-align: center; }
+      .b-node.selected { border-color: rgba(45, 212, 191, 0.72); background: var(--teal-soft); }
+      .b-icon { display: grid; place-items: center; width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 50%; background: rgba(148, 163, 184, 0.12); color: #ccfbf1; font-weight: 900; }
+      .b-node b { display: block; font-size: 15px; }
+      .b-node span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+      .b-kind { margin-top: 12px; color: #5eead4; font-size: 10px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+
+      .c-node { display: grid; grid-template-columns: 118px 1fr 92px; gap: 16px; align-items: center; border: 1px solid var(--line); border-radius: 20px; padding: 15px 16px; background: rgba(15, 23, 42, 0.92); }
+      .c-node.selected { border-color: rgba(45, 212, 191, 0.72); background: rgba(15, 118, 110, 0.12); }
+      .c-kind { color: #5eead4; font-size: 11px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+      .c-node b { display: block; font-size: 17px; letter-spacing: -0.03em; }
+      .c-node p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+      .c-files { justify-self: end; color: var(--muted); font-size: 12px; }
+
+      @media (max-width: 900px) {
+        .nodes, .nodes.center { grid-template-columns: 1fr; padding-top: 0; }
+        .c-node { grid-template-columns: 1fr; }
+        .c-files { justify-self: start; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Architecture canvas node proposals</p>
+        <h1>Pick how the map nodes should look.</h1>
+        <p>These focus only on the architecture canvas. Option A is closest to the current layout but cleaner. Option B is more visual/map-like. Option C is the most practical and readable.</p>
+      </header>
+
+      <section class="grid">
+        <article class="proposal">
+          <div class="proposal-head">
+            <div><h2>Option A - Flat Cards</h2><p>Simple rectangular nodes, no chips, no glow, readable at a glance.</p></div>
+            <div class="label">Recommended safe choice</div>
+          </div>
+          <div class="canvas">
+            <div class="nodes">
+              <div class="a-node selected"><div class="a-top"><span class="a-kind">Core</span><span class="a-count">4 files</span></div><b>Repository</b><p>Shared project contract, config, and root-level app structure.</p></div>
+              <div class="a-node"><div class="a-top"><span class="a-kind">UI</span><span class="a-count">9 files</span></div><b>Client</b><p>React screens, canvas rendering, input flow, and inspector state.</p></div>
+              <div class="a-node"><div class="a-top"><span class="a-kind">Server</span><span class="a-count">5 files</span></div><b>API</b><p>Express endpoint, request validation, and tree analysis service.</p></div>
+              <div class="a-node"><div class="a-top"><span class="a-kind">Data</span><span class="a-count">2 files</span></div><b>Analyzer</b><p>Deterministic heuristics that turn file paths into architecture signals.</p></div>
+              <div class="a-node"><div class="a-top"><span class="a-kind">Docs</span><span class="a-count">3 files</span></div><b>Docs</b><p>MVP scope, notes, and project onboarding context.</p></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="proposal">
+          <div class="proposal-head">
+            <div><h2>Option B - Map Tokens</h2><p>More visual and distinctive, less dashboard-like, but slightly less information-dense.</p></div>
+            <div class="label">Most visual</div>
+          </div>
+          <div class="canvas">
+            <div class="nodes center">
+              <div class="b-node"><div class="b-icon">UI</div><b>Client</b><span>React canvas and panels</span><div class="b-kind">Interface</div></div>
+              <div class="b-node selected"><div class="b-icon">RL</div><b>Repository</b><span>Root contract and config</span><div class="b-kind">Core</div></div>
+              <div class="b-node"><div class="b-icon">API</div><b>Server</b><span>Express analysis route</span><div class="b-kind">Backend</div></div>
+              <div class="b-node"><div class="b-icon">ƒ</div><b>Analyzer</b><span>Path heuristics</span><div class="b-kind">Logic</div></div>
+              <div class="b-node"><div class="b-icon">MD</div><b>Docs</b><span>MVP context</span><div class="b-kind">Notes</div></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="proposal">
+          <div class="proposal-head">
+            <div><h2>Option C - Inspector Rows</h2><p>More like an IDE structure list. Very readable, calmer, less “bubble/card” heavy.</p></div>
+            <div class="label">Cleanest</div>
+          </div>
+          <div class="canvas">
+            <div class="nodes rows">
+              <div class="c-node selected"><span class="c-kind">Core</span><div><b>Repository</b><p>Shared project contract, config, and root-level structure.</p></div><span class="c-files">4 files</span></div>
+              <div class="c-node"><span class="c-kind">UI</span><div><b>Client</b><p>React screens, canvas rendering, input flow, and inspector state.</p></div><span class="c-files">9 files</span></div>
+              <div class="c-node"><span class="c-kind">Server</span><div><b>API</b><p>Express endpoint, request validation, and tree analysis service.</p></div><span class="c-files">5 files</span></div>
+              <div class="c-node"><span class="c-kind">Data</span><div><b>Analyzer</b><p>Heuristics that turn file paths into architecture signals.</p></div><span class="c-files">2 files</span></div>
+              <div class="c-node"><span class="c-kind">Docs</span><div><b>Docs</b><p>MVP scope, notes, and onboarding context.</p></div><span class="c-files">3 files</span></div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
