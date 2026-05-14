@@ -49,12 +49,12 @@ The `.agents` folder currently contains an `ai-sdk` skill. Use it when adding re
 
 ## Next Task
 
-Add the focused question feature:
+Improve the architecture canvas workflow:
 
-- `POST /api/ask-tree`
-- Predefined question buttons.
-- Answers that reference likely files.
-- Optional LLM integration behind an environment variable.
+- Linked file tree in the inspector.
+- Better selected-node file grouping.
+- Important file callouts.
+- Optional experimental 3D city view later.
 
 ## Open Questions For Later
 

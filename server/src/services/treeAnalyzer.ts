@@ -188,7 +188,7 @@ function buildGraphNodes(files: string[], folders: FolderInsight[]): Architectur
     label: "Repository",
     type: "root",
     description: "Top-level view of the analyzed codebase.",
-    files: []
+    files: files.filter((file) => !file.includes("/"))
   };
 
   const nodes = folders.map<ArchitectureNode>((folder) => {
@@ -198,7 +198,7 @@ function buildGraphNodes(files: string[], folders: FolderInsight[]): Architectur
       label: folder.path,
       type: inferNodeType(folder.path),
       description: folder.purpose,
-      files: folderFiles.slice(0, 8)
+      files: folderFiles
     };
   });
 

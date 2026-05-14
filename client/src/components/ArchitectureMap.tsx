@@ -1,81 +1,95 @@
-import type { AnalysisResult } from "../../../shared/analysis";
+import { useState } from "react";
+import type { AnalysisResult, ArchitectureNode } from "../../../shared/analysis";
+import { ArchitectureNodeGrid } from "@/components/ArchitectureNodeGrid";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { CanvasDetail } from "@/components/CanvasDetail";
+import { RepositoryBriefing } from "@/components/RepositoryBriefing";
+import { RepositoryTree } from "@/components/RepositoryTree";
+import { filesForNode, normalizePath, topFolderOf } from "@/lib/fileTree";
 import { cn } from "@/lib/utils";
 
 type ArchitectureMapProps = {
   analysis: AnalysisResult;
+  files: string[];
+  selectedFilePath: string | null;
   selectedNodeId: string | null;
+  onSelectFile: (file: string | null) => void;
   onSelectNode: (nodeId: string) => void;
 };
 
-const nodeTypeLabels: Record<string, string> = {
-  root: "Core",
-  frontend: "UI",
-  backend: "Server",
-  api: "API",
-  data: "Data",
-  config: "Config",
-  docs: "Docs",
-  unknown: "Module"
-};
+type CanvasMode = "map" | "briefing";
 
-const nodeTypeClasses: Record<string, string> = {
-  root: "border-teal-700/70 bg-teal-950/20",
-  frontend: "border-blue-400/40",
-  backend: "border-emerald-400/40",
-  api: "border-sky-400/40",
-  data: "border-violet-400/40",
-  config: "border-slate-400/40",
-  docs: "border-amber-400/40",
-  unknown: "border-slate-500/50"
-};
+const canvasModes: { id: CanvasMode; label: string }[] = [
+  { id: "map", label: "Map" },
+  { id: "briefing", label: "Briefing" }
+];
 
-const nodeTypeTextClasses: Record<string, string> = {
-  root: "text-teal-300",
-  frontend: "text-blue-300",
-  backend: "text-emerald-300",
-  api: "text-sky-300",
-  data: "text-violet-300",
-  config: "text-slate-300",
-  docs: "text-amber-300",
-  unknown: "text-slate-300"
-};
+export function ArchitectureMap({ analysis, files, selectedFilePath, selectedNodeId, onSelectFile, onSelectNode }: ArchitectureMapProps) {
+  const [canvasMode, setCanvasMode] = useState<CanvasMode>("map");
+  const normalizedFiles = files.map(normalizePath);
+  const selectedNode = analysis.graph.nodes.find((node) => node.id === selectedNodeId) ?? null;
+  const selectedFileReason = selectedFilePath ? analysis.importantFiles.find((file) => file.path === selectedFilePath)?.reason : null;
 
-export function ArchitectureMap({ analysis, selectedNodeId, onSelectNode }: ArchitectureMapProps) {
+  const selectNode = (node: ArchitectureNode) => {
+    onSelectFile(filesForNode(normalizedFiles, node.id)[0] ?? null);
+    onSelectNode(node.id);
+  };
+
+  const selectFile = (file: string) => {
+    onSelectFile(file);
+    const folder = topFolderOf(file);
+    const matchingNode = analysis.graph.nodes.find((node) => node.id === folder || node.files.includes(file));
+
+    if (matchingNode) {
+      onSelectNode(matchingNode.id);
+    }
+  };
+
   return (
-    <div className="relative min-h-[640px] overflow-hidden rounded-[1.75rem] border border-slate-700/60 bg-slate-950/40 p-5">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(148,163,184,0.28)_1px,transparent_1px)] [background-size:22px_22px]" />
-      <div className="relative z-10 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Architecture canvas</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight">{analysis.projectType}</h2>
+    <div className="flex min-h-[640px] flex-col gap-4 xl:h-full xl:min-h-0">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.75rem] border border-slate-700/60 bg-slate-950/40 p-5">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(148,163,184,0.28)_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="relative z-10 flex flex-col justify-between gap-4 2xl:flex-row 2xl:items-start">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Architecture canvas</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight">Interactive map</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {canvasModes.map((mode) => (
+              <button
+                className={cn(
+                  "rounded-full border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:border-teal-800 hover:bg-teal-950/20 hover:text-slate-100",
+                  canvasMode === mode.id && "border-teal-700 bg-teal-950/30 text-teal-100"
+                )}
+                key={mode.id}
+                onClick={() => setCanvasMode(mode.id)}
+                type="button"
+              >
+                {mode.label}
+              </button>
+            ))}
+            <Badge className="border-slate-700 bg-slate-900/70 text-slate-200" variant="outline">{normalizedFiles.length} files</Badge>
+          </div>
         </div>
-        <Badge className="border-teal-700/50 bg-teal-900/20 text-teal-200" variant="outline">{analysis.graph.nodes.length} nodes</Badge>
-      </div>
 
-      <div className="relative z-10 mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {analysis.graph.nodes.map((node) => (
-          <Button
-            className={cn(
-              "h-auto min-h-36 flex-col items-stretch justify-start rounded-[1.35rem] border bg-slate-900/90 p-4 text-left text-foreground shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5 hover:bg-slate-900",
-              nodeTypeClasses[node.type],
-              selectedNodeId === node.id && "border-primary bg-teal-950/30 ring-1 ring-primary"
-            )}
-            variant="ghost"
-            key={node.id}
-            onClick={() => onSelectNode(node.id)}
-          >
-            <span className="mb-4 flex w-full items-start justify-between gap-3">
-              <span className={cn("text-[11px] font-black uppercase tracking-[0.16em]", nodeTypeTextClasses[node.type])}>
-                {nodeTypeLabels[node.type]}
-              </span>
-              <span className="text-xs text-muted-foreground">{node.files.length} files</span>
-            </span>
-            <strong className="mb-1 block text-lg font-bold tracking-tight text-foreground">{node.label}</strong>
-            <small className="block whitespace-normal text-sm leading-5 text-muted-foreground">{node.description}</small>
-          </Button>
-        ))}
+        <div className="relative z-10 mt-4 grid min-h-0 flex-1 gap-4 xl:grid-cols-[260px_minmax(0,1fr)_300px]">
+          <RepositoryTree files={normalizedFiles} selectedFilePath={selectedFilePath} onSelectFile={selectFile} />
+
+          <div className="min-h-0">
+            {canvasMode === "map" ? (
+              <ArchitectureNodeGrid files={normalizedFiles} nodes={analysis.graph.nodes} selectedNodeId={selectedNodeId} onSelectNode={selectNode} />
+            ) : null}
+
+            {canvasMode === "briefing" ? <RepositoryBriefing analysis={analysis} selectedFilePath={selectedFilePath} onSelectFile={onSelectFile} /> : null}
+          </div>
+
+          <CanvasDetail
+            selectedFilePath={selectedFilePath}
+            selectedFileReason={selectedFileReason}
+            selectedNode={selectedNode}
+            selectedNodeFileCount={selectedNode ? filesForNode(normalizedFiles, selectedNode.id).length : 0}
+          />
+        </div>
       </div>
     </div>
   );

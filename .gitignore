@@ -37,3 +37,4 @@ temp/
 # Agent skills
 .agents/
 skills-lock.json
+AGENTS.md

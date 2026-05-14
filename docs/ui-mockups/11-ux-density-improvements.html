@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RepoLens UX Density Improvements</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050712;
+      --panel: #0b1020;
+      --panel-2: #0f172a;
+      --line: #1e293b;
+      --muted: #94a3b8;
+      --text: #f8fafc;
+      --teal: #0f766e;
+      --teal-soft: rgba(15, 118, 110, 0.2);
+      --amber-soft: rgba(146, 64, 14, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, var(--bg), #0b1020 48%, var(--bg));
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      display: grid;
+      gap: 28px;
+      padding: 28px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .eyebrow {
+      color: #5eead4;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .intro {
+      max-width: 980px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .intro h1 {
+      font-size: clamp(40px, 7vw, 82px);
+      letter-spacing: -0.075em;
+      line-height: 0.92;
+    }
+
+    .intro p {
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .concept {
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: rgba(15, 23, 42, 0.72);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+    }
+
+    .concept-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.38);
+    }
+
+    .concept-header p {
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    .badge {
+      align-self: flex-start;
+      border: 1px solid rgba(20, 184, 166, 0.4);
+      border-radius: 999px;
+      background: var(--teal-soft);
+      color: #ccfbf1;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    .mock-shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 320px;
+      gap: 14px;
+      min-height: 520px;
+      padding: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(2, 6, 23, 0.42);
+      padding: 16px;
+    }
+
+    .canvas {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+      background-image: radial-gradient(rgba(148, 163, 184, 0.24) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tabs, .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab, .chip, .file, .node, .callout, .metric, .risk {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    .tab {
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      border-color: rgba(20, 184, 166, 0.5);
+      background: var(--teal-soft);
+      color: #ccfbf1;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      color: #cbd5e1;
+      font-size: 11px;
+    }
+
+    .tree, .stack, .files {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .file {
+      padding: 9px 10px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .folder {
+      color: #99f6e4;
+      font-weight: 900;
+    }
+
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .node {
+      min-height: 130px;
+      padding: 16px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .node strong {
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .node small, .muted {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .node.core { border-color: rgba(103, 232, 249, 0.5); background: rgba(8, 47, 73, 0.48); }
+    .node.ui { border-color: rgba(96, 165, 250, 0.55); background: rgba(30, 58, 138, 0.38); }
+    .node.server { border-color: rgba(190, 242, 100, 0.55); background: rgba(54, 83, 20, 0.38); }
+    .node.docs { border-color: rgba(252, 211, 77, 0.55); background: rgba(120, 53, 15, 0.36); }
+
+    .briefing-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px 260px;
+      gap: 14px;
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.34);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .metric { padding: 10px; }
+    .metric strong { display: block; font-size: 22px; }
+    .metric span { color: var(--muted); font-size: 11px; }
+
+    .callout {
+      padding: 12px;
+      background: var(--teal-soft);
+      border-color: rgba(20, 184, 166, 0.38);
+    }
+
+    .callout strong { color: #ccfbf1; }
+    .callout p { color: rgba(204, 251, 241, 0.75); margin-top: 5px; line-height: 1.5; }
+
+    .risk {
+      padding: 10px;
+      background: var(--amber-soft);
+      border-color: rgba(245, 158, 11, 0.28);
+      color: #fde68a;
+      line-height: 1.45;
+    }
+
+    .split-inspector {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5eead4;
+    }
+
+    @media (max-width: 1100px) {
+      .mock-shell, .briefing-row { grid-template-columns: 1fr; }
+      .node-grid, .metrics { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">RepoLens UX improvement mockups</p>
+      <h1>Same power, less visual competition.</h1>
+      <p>These concepts keep the current dark developer-tool direction, but reduce density by separating modes, making the canvas primary, and explaining that important files are curated highlights rather than every file in the node.</p>
+    </section>
+
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <p class="eyebrow">Concept A</p>
+          <h2>Mode tabs above the canvas</h2>
+          <p>Instead of showing every support panel at once, the center area can switch between map, files, risks, and briefing. The right inspector stays focused on the selected node.</p>
+        </div>
+        <span class="badge">Best for density</span>
+      </div>
+      <div class="mock-shell">
+        <aside class="panel">
+          <p class="section-title">Input tree</p>
+          <div class="tree">
+            <div class="file folder">src (12)</div>
+            <div class="file">main.tsx</div>
+            <div class="file">App.tsx</div>
+            <div class="file folder">components (4)</div>
+            <div class="file folder">server (6)</div>
+          </div>
+        </aside>
+        <section class="panel canvas">
+          <div class="toolbar">
+            <div>
+              <p class="eyebrow">Architecture canvas</p>
+              <h3>Interactive map</h3>
+            </div>
+            <div class="tabs">
+              <span class="tab active">Map</span>
+              <span class="tab">Files</span>
+              <span class="tab">Risks</span>
+              <span class="tab">Briefing</span>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="node core"><small>Core - 2 files</small><strong>Repository</strong><small>Top-level documentation and package metadata.</small></article>
+            <article class="node ui"><small>UI - 12 files</small><strong>src</strong><small>Main frontend source and application shell.</small></article>
+            <article class="node server"><small>Server - 6 files</small><strong>server</strong><small>Backend routes, startup, and analysis service.</small></article>
+            <article class="node docs"><small>Docs - 3 files</small><strong>docs</strong><small>Planning notes and UI experiments.</small></article>
+          </div>
+        </section>
+        <aside class="panel split-inspector">
+          <div>
+            <p class="section-title">Selected node</p>
+            <h3>src</h3>
+            <p class="muted">12 files in this node. Important files below are only recommendations.</p>
+          </div>
+          <div class="callout"><strong>Important here: 2 highlights</strong><p>These are likely starting points, not a complete file list.</p></div>
+          <div class="file">src/main.tsx</div>
+          <div class="file">src/App.tsx</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <p class="eyebrow">Concept B</p>
+          <h2>Briefing as a bottom report strip</h2>
+          <p>The canvas remains visually dominant. Metrics, open-first files, and risks become a report strip below the map, with clearer labels for curated versus exhaustive lists.</p>
+        </div>
+        <span class="badge">Closest to current UI</span>
+      </div>
+      <div class="mock-shell" style="grid-template-columns: 1fr; min-height: auto;">
+        <section class="panel canvas" style="min-height: 360px;">
+          <div class="toolbar">
+            <div><p class="eyebrow">Architecture canvas</p><h3>Interactive map</h3></div>
+            <span class="badge">20 total files</span>
+          </div>
+          <div class="node-grid">
+            <article class="node core"><small>Core - 2 files</small><strong>Repository</strong></article>
+            <article class="node ui"><small>UI - 12 files</small><strong>src</strong></article>
+            <article class="node server"><small>Server - 6 files</small><strong>server</strong></article>
+            <article class="node docs"><small>Docs - 0 files</small><strong>docs</strong></article>
+          </div>
+        </section>
+      </div>
+      <div class="briefing-row">
+        <section>
+          <p class="section-title">Repository briefing</p>
+          <h3>Full-stack web application</h3>
+          <div class="metrics">
+            <div class="metric"><strong>3</strong><span>nodes</span></div>
+            <div class="metric"><strong>8</strong><span>curated important</span></div>
+            <div class="metric"><strong>5</strong><span>open first</span></div>
+            <div class="metric"><strong>2</strong><span>risks</span></div>
+          </div>
+          <div class="chips"><span class="chip">React</span><span class="chip">TypeScript</span><span class="chip">Node.js</span></div>
+        </section>
+        <section>
+          <p class="section-title">Open first</p>
+          <div class="files"><div class="file">package.json</div><div class="file">README.md</div><div class="file">src/main.tsx</div><div class="file">src/App.tsx</div><div class="file">server/index.ts</div></div>
+        </section>
+        <section>
+          <p class="section-title">Risks</p>
+          <div class="files"><div class="risk">No visible tests in the pasted tree.</div><div class="risk">Authentication flow is not obvious from paths.</div></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <p class="eyebrow">Concept C</p>
+          <h2>Explain the important-files model inline</h2>
+          <p>The biggest semantic issue is that users can confuse important files with all files. This copy and layout makes the distinction explicit.</p>
+        </div>
+        <span class="badge">Best for clarity</span>
+      </div>
+      <div class="mock-shell" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: auto;">
+        <section class="panel">
+          <p class="section-title">Files in this node</p>
+          <h3>All 12 files in src</h3>
+          <p class="muted">This is the exhaustive file list from the pasted tree for the selected architecture node.</p>
+          <div class="files"><div class="file">src/main.tsx</div><div class="file">src/App.tsx</div><div class="file">src/components/Header.tsx</div><div class="file">src/components/Sidebar.tsx</div><div class="file">src/api/client.ts</div></div>
+        </section>
+        <section class="panel">
+          <p class="section-title">Important here</p>
+          <h3>2 recommended starting points</h3>
+          <p class="muted">Curated highlights are capped so the report stays readable. They are not meant to equal the node file count.</p>
+          <div class="files"><div class="callout"><strong>src/main.tsx</strong><p>Frontend bootstrap entry point.</p></div><div class="callout"><strong>src/App.tsx</strong><p>Main application shell.</p></div></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

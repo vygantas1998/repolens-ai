@@ -23,7 +23,7 @@ describe("analyzeFileTree", () => {
     });
     expect(analysis.importantFiles.map((file) => file.path)).toContain("server/routes/auth.ts");
     expect(analysis.risks).toEqual([]);
-    expect(analysis.graph.nodes[0]).toMatchObject({ id: "root", type: "root" });
+    expect(analysis.graph.nodes[0]).toMatchObject({ id: "root", type: "root", files: ["README.md", "package.json"] });
     expect(analysis.graph.edges).toContainEqual({ from: "root", to: "server", label: "contains" });
   });
 
@@ -115,5 +115,14 @@ describe("analyzeFileTree", () => {
     const analysis = analyzeFileTree(["components/Button.tsx", "components/Card.tsx"]);
 
     expect(analysis.folders).toEqual([{ path: "components", purpose: "Reusable user interface components.", confidence: "high" }]);
+  });
+
+  it("attaches every file to its matching architecture node", () => {
+    const srcFiles = Array.from({ length: 12 }, (_, index) => `src/file-${index + 1}.ts`);
+    const rootFiles = Array.from({ length: 9 }, (_, index) => `root-${index + 1}.json`);
+    const analysis = analyzeFileTree([...rootFiles, ...srcFiles]);
+
+    expect(analysis.graph.nodes.find((node) => node.id === "root")?.files).toEqual(rootFiles.sort());
+    expect(analysis.graph.nodes.find((node) => node.id === "src")?.files).toEqual(srcFiles.sort());
   });
 });

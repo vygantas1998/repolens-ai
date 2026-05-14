@@ -17,7 +17,7 @@ export const analysisFixture: AnalysisResult = {
   risks: ["No tests are visible from the file tree."],
   graph: {
     nodes: [
-      { id: "root", label: "Repository", type: "root", description: "Root node.", files: [] },
+      { id: "root", label: "Repository", type: "root", description: "Root node.", files: ["package.json"] },
       { id: "src", label: "src", type: "frontend", description: "Frontend source code.", files: ["src/App.tsx"] },
       { id: "server", label: "server", type: "backend", description: "Backend source code.", files: ["server/index.ts"] }
     ],

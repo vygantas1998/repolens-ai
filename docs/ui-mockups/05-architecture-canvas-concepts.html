@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RepoLens AI - Architecture Canvas Concepts</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050712;
+        --panel: rgba(15, 23, 42, 0.86);
+        --panel-2: rgba(2, 6, 23, 0.5);
+        --line: rgba(148, 163, 184, 0.22);
+        --line-strong: rgba(148, 163, 184, 0.36);
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --teal: #0f766e;
+        --teal-light: #5eead4;
+        --blue: #60a5fa;
+        --green: #34d399;
+        --violet: #a78bfa;
+        --amber: #fbbf24;
+        --rose: #fb7185;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background: linear-gradient(135deg, #050712, #0b1020 48%, #050712);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main { width: min(1400px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 54px; }
+      header { margin-bottom: 24px; }
+      .eyebrow { margin: 0 0 10px; color: var(--teal-light); font-size: 12px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+      h1 { margin: 0; max-width: 860px; font-size: clamp(38px, 5vw, 70px); line-height: 0.95; letter-spacing: -0.075em; }
+      header p:not(.eyebrow) { max-width: 760px; color: var(--muted); line-height: 1.65; }
+      .stack { display: grid; gap: 26px; }
+      .concept { overflow: hidden; border: 1px solid var(--line); border-radius: 30px; background: var(--panel); }
+      .concept-head { display: flex; justify-content: space-between; gap: 20px; padding: 20px 22px; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, 0.025); }
+      .concept h2 { margin: 0; font-size: 22px; letter-spacing: -0.04em; }
+      .concept-head p { margin: 6px 0 0; color: var(--muted); line-height: 1.55; }
+      .tag { align-self: start; white-space: nowrap; color: #ccfbf1; border: 1px solid rgba(15, 118, 110, 0.5); background: rgba(15, 118, 110, 0.16); border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; }
+      .canvas { min-height: 620px; padding: 22px; background-image: radial-gradient(rgba(148, 163, 184, 0.24) 1px, transparent 1px); background-size: 24px 24px; }
+
+      .tree-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr) 340px; gap: 18px; min-height: 576px; }
+      .pane { border: 1px solid var(--line); border-radius: 24px; background: rgba(2, 6, 23, 0.62); padding: 16px; }
+      .pane-title { display: flex; justify-content: space-between; margin-bottom: 16px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+      .tree { display: grid; gap: 8px; color: #dbeafe; font: 13px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .folder, .file { display: flex; gap: 8px; align-items: center; border-radius: 10px; padding: 7px 9px; }
+      .folder { color: #ccfbf1; background: rgba(15, 118, 110, 0.14); }
+      .file { margin-left: 18px; color: var(--muted); }
+      .file.hot { color: #f8fafc; border: 1px solid rgba(94, 234, 212, 0.35); background: rgba(15, 118, 110, 0.1); }
+      .map-grid { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-content: center; }
+      .module-card { min-height: 132px; border: 1px solid var(--line-strong); border-radius: 22px; padding: 15px; background: rgba(15, 23, 42, 0.94); }
+      .module-card.selected { border-color: rgba(94, 234, 212, 0.68); background: rgba(15, 118, 110, 0.18); }
+      .module-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-bottom: 13px; }
+      .module-kind { color: var(--teal-light); font-size: 11px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+      .module-card b { display: block; font-size: 18px; letter-spacing: -0.04em; }
+      .module-card p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+      .detail-list { display: grid; gap: 10px; }
+      .detail { border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: rgba(15, 23, 42, 0.7); }
+      .detail b { display: block; margin-bottom: 4px; font-size: 14px; }
+      .detail span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+      .layers-layout { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; min-height: 576px; align-items: stretch; }
+      .lane { border: 1px solid var(--line); border-radius: 24px; padding: 14px; background: rgba(2, 6, 23, 0.5); }
+      .lane h3 { margin: 0 0 14px; color: var(--muted); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+      .lane-node { border: 1px solid var(--line-strong); border-radius: 18px; padding: 13px; background: rgba(15, 23, 42, 0.94); margin-bottom: 12px; }
+      .lane-node.main { border-color: rgba(94, 234, 212, 0.58); background: rgba(15, 118, 110, 0.16); }
+      .lane-node b { display: block; font-size: 15px; }
+      .lane-node span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+      .flow { display: flex; align-items: center; justify-content: center; height: 34px; color: var(--teal-light); font-size: 22px; opacity: 0.65; }
+
+      .iso-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; min-height: 576px; perspective: 1000px; }
+      .iso-stage { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: rgba(2, 6, 23, 0.62); }
+      .iso-plane { position: absolute; left: 12%; top: 10%; width: 76%; height: 72%; transform: rotateX(58deg) rotateZ(-35deg); transform-style: preserve-3d; border: 1px solid rgba(148, 163, 184, 0.18); background-image: linear-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.14) 1px, transparent 1px); background-size: 38px 38px; }
+      .iso-node { position: absolute; width: 150px; min-height: 82px; transform: translateZ(30px); border: 1px solid var(--line-strong); border-radius: 18px; padding: 12px; background: #111827; box-shadow: 14px 16px 0 rgba(0, 0, 0, 0.28); }
+      .iso-node.core { left: 42%; top: 38%; border-color: rgba(94, 234, 212, 0.66); background: #0f2f32; }
+      .iso-node.ui { left: 18%; top: 18%; border-color: rgba(96, 165, 250, 0.55); }
+      .iso-node.api { right: 12%; top: 22%; border-color: rgba(52, 211, 153, 0.55); }
+      .iso-node.data { right: 22%; bottom: 12%; border-color: rgba(167, 139, 250, 0.55); }
+      .iso-node.docs { left: 16%; bottom: 16%; border-color: rgba(251, 191, 36, 0.55); }
+      .iso-node b { display: block; font-size: 14px; }
+      .iso-node span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+      .iso-side { border: 1px solid var(--line); border-radius: 24px; background: rgba(2, 6, 23, 0.62); padding: 16px; }
+
+      @media (max-width: 1050px) {
+        .tree-layout, .iso-wrap { grid-template-columns: 1fr; }
+        .layers-layout { grid-template-columns: 1fr; }
+        .map-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">RepoLens canvas upgrade concepts</p>
+        <h1>More useful, more visual architecture maps.</h1>
+        <p>These mockups replace the focused questions area with richer architecture visualization ideas. They are standalone only and do not affect the app.</p>
+      </header>
+
+      <section class="stack">
+        <article class="concept">
+          <div class="concept-head">
+            <div><h2>Option A - Canvas + Linked File Tree</h2><p>A practical codebase visualizer: left file tree, center architecture map, right selected-node file details. Most useful for the MVP.</p></div>
+            <span class="tag">Recommended</span>
+          </div>
+          <div class="canvas">
+            <div class="tree-layout">
+              <aside class="pane">
+                <div class="pane-title"><span>Repository Tree</span><span>21 files</span></div>
+                <div class="tree">
+                  <div class="folder">▾ client</div>
+                  <div class="file hot">App.tsx</div>
+                  <div class="file">components/ArchitectureMap.tsx</div>
+                  <div class="file">components/ResultsPanel.tsx</div>
+                  <div class="folder">▾ server</div>
+                  <div class="file hot">src/app.ts</div>
+                  <div class="file">src/services/treeAnalyzer.ts</div>
+                  <div class="folder">▾ shared</div>
+                  <div class="file hot">analysis.ts</div>
+                  <div class="folder">▸ docs</div>
+                </div>
+              </aside>
+
+              <section class="map-grid">
+                <div class="module-card selected"><div class="module-meta"><span class="module-kind">Core</span><span>1 file</span></div><b>Shared Contract</b><p>Types connecting backend analysis and frontend rendering.</p></div>
+                <div class="module-card"><div class="module-meta"><span class="module-kind">UI</span><span>8 files</span></div><b>Client App</b><p>Input flow, architecture canvas, and inspector panels.</p></div>
+                <div class="module-card"><div class="module-meta"><span class="module-kind">Server</span><span>5 files</span></div><b>API Layer</b><p>Express endpoints, validation, and deterministic responses.</p></div>
+                <div class="module-card"><div class="module-meta"><span class="module-kind">Logic</span><span>2 files</span></div><b>Analyzer</b><p>Heuristics that classify technologies, risks, and entry files.</p></div>
+                <div class="module-card"><div class="module-meta"><span class="module-kind">Docs</span><span>4 files</span></div><b>Planning</b><p>MVP scope, design mockups, and product notes.</p></div>
+              </section>
+
+              <aside class="pane">
+                <div class="pane-title"><span>Selected Module</span><span>Core</span></div>
+                <div class="detail-list">
+                  <div class="detail"><b>shared/analysis.ts</b><span>Defines the contract used by the server and UI.</span></div>
+                  <div class="detail"><b>Why this matters</b><span>If this changes, both the API response and inspector rendering can break.</span></div>
+                  <div class="detail"><b>Read next</b><span>server/src/app.ts, client/src/App.tsx</span></div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept">
+          <div class="concept-head">
+            <div><h2>Option B - Architecture Lanes</h2><p>Groups nodes by layer: Frontend, API, Logic, Data, Docs. More structured and easier to understand than freeform cards.</p></div>
+            <span class="tag">Clean system map</span>
+          </div>
+          <div class="canvas">
+            <div class="layers-layout">
+              <section class="lane"><h3>Frontend</h3><div class="lane-node main"><b>React App</b><span>App shell and state flow</span></div><div class="lane-node"><b>Canvas</b><span>Architecture node map</span></div><div class="lane-node"><b>Inspector</b><span>Selected node details</span></div></section>
+              <div class="flow">→</div>
+              <section class="lane"><h3>API</h3><div class="lane-node main"><b>/api/analyze-tree</b><span>File tree analysis</span></div><div class="lane-node"><b>/api/ask-tree</b><span>Focused answers</span></div></section>
+              <section class="lane"><h3>Logic</h3><div class="lane-node main"><b>Tree Analyzer</b><span>Technologies, folders, risks</span></div><div class="lane-node"><b>Graph Builder</b><span>Nodes and edges</span></div></section>
+              <section class="lane"><h3>Docs</h3><div class="lane-node"><b>MVP Scope</b><span>Product promise and constraints</span></div><div class="lane-node"><b>Mockups</b><span>Design exploration</span></div></section>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept">
+          <div class="concept-head">
+            <div><h2>Option C - Pseudo-3D Codebase Map</h2><p>Experimental portfolio-wow direction. Looks unique, but it is less practical and harder to build well than Option A.</p></div>
+            <span class="tag">Experimental</span>
+          </div>
+          <div class="canvas">
+            <div class="iso-wrap">
+              <section class="iso-stage">
+                <div class="iso-plane">
+                  <div class="iso-node core"><b>Core Types</b><span>shared/analysis.ts</span></div>
+                  <div class="iso-node ui"><b>Client UI</b><span>React + canvas</span></div>
+                  <div class="iso-node api"><b>Server API</b><span>Express routes</span></div>
+                  <div class="iso-node data"><b>Analyzer</b><span>Heuristic engine</span></div>
+                  <div class="iso-node docs"><b>Docs</b><span>MVP + mockups</span></div>
+                </div>
+              </section>
+              <aside class="iso-side">
+                <div class="pane-title"><span>3D Selection</span><span>Core Types</span></div>
+                <div class="detail-list">
+                  <div class="detail"><b>Depth means dependency</b><span>Higher blocks are more central to app behavior.</span></div>
+                  <div class="detail"><b>Color means layer</b><span>Teal core, blue UI, green API, violet logic, amber docs.</span></div>
+                  <div class="detail"><b>Risk</b><span>Looks impressive, but can become gimmicky if interaction is weak.</span></div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

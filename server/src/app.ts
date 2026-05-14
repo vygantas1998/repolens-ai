@@ -9,6 +9,27 @@ function badRequest(response: express.Response, code: string, message: string) {
   response.status(400).json(body);
 }
 
+function parseFiles(response: express.Response, body: Partial<AnalyzeTreeRequest>) {
+  if (!Array.isArray(body.files)) {
+    badRequest(response, "INVALID_FILES", "Expected body.files to be an array of file paths.");
+    return null;
+  }
+
+  if (!body.files.every((file) => typeof file === "string")) {
+    badRequest(response, "INVALID_FILE_PATH", "Every file path must be a string.");
+    return null;
+  }
+
+  const files = body.files.map((file) => file.trim()).filter(Boolean);
+
+  if (files.length === 0) {
+    badRequest(response, "EMPTY_FILE_TREE", "Provide at least one file path to analyze.");
+    return null;
+  }
+
+  return files;
+}
+
 export function createApp() {
   const app = express();
 
@@ -21,21 +42,9 @@ export function createApp() {
 
   app.post("/api/analyze-tree", (request, response) => {
     const body = request.body as Partial<AnalyzeTreeRequest>;
+    const files = parseFiles(response, body);
 
-    if (!Array.isArray(body.files)) {
-      badRequest(response, "INVALID_FILES", "Expected body.files to be an array of file paths.");
-      return;
-    }
-
-    if (!body.files.every((file) => typeof file === "string")) {
-      badRequest(response, "INVALID_FILE_PATH", "Every file path must be a string.");
-      return;
-    }
-
-    const files = body.files.map((file) => file.trim()).filter(Boolean);
-
-    if (files.length === 0) {
-      badRequest(response, "EMPTY_FILE_TREE", "Provide at least one file path to analyze.");
+    if (!files) {
       return;
     }
 

@@ -47,4 +47,5 @@ describe("createApp", () => {
     expect(response.body.projectType).toBe("Full-stack web application");
     expect(response.body.technologies).toEqual(["React", "TypeScript", "Node.js"]);
   });
+
 });
